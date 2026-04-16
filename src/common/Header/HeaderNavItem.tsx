@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useWatchlist } from "@/context/watchlistContext";
 import { textColor } from "../../styles";
 import { cn } from "../../utils/helper";
 
@@ -9,6 +10,9 @@ interface HeaderProps {
 }
 
 const HeaderNavItem = ({ link, showBg, isNotFoundPage }: HeaderProps) => {
+  const { watchlist } = useWatchlist();
+  const count = link.path === "/watchlist" ? watchlist.length : 0;
+
   return (
     <li>
       <NavLink
@@ -28,6 +32,11 @@ const HeaderNavItem = ({ link, showBg, isNotFoundPage }: HeaderProps) => {
         end
       >
         {link.title}
+        {count > 0 && (
+          <span className="ml-1 text-[11px] font-bold bg-[#ff0000] text-white rounded-full px-[6px] py-[1px]">
+            {count}
+          </span>
+        )}
       </NavLink>
     </li>
   );
