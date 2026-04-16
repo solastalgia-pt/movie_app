@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { m } from "framer-motion";
 import { useParams } from "react-router-dom";
 
+import { BsHeartFill, BsHeart } from "react-icons/bs";
+
 import { Poster, Loader, Error, Section } from "@/common";
 import { Casts, Videos, Genre } from "./components";
 
 import { useGetShowQuery } from "@/services/TMDB";
+import { useWatchlist } from "@/context/watchlistContext";
 import { useMotion } from "@/hooks/useMotion";
 import { mainHeading, maxWidth, paragraph } from "@/styles";
 import { cn } from "@/utils/helper";
@@ -14,6 +17,7 @@ const Detail = () => {
   const { category, id } = useParams();
   const [show, setShow] = useState<Boolean>(false);
   const { fadeDown, staggerContainer } = useMotion();
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
   const {
     data: movie,
@@ -90,6 +94,38 @@ const Detail = () => {
                 return <Genre key={genre.id} name={genre.name} />;
               })}
             </m.ul>
+
+            <m.div variants={fadeDown} className="will-change-transform motion-reduce:transform-none">
+              {(() => {
+                const saved = isInWatchlist(String(id));
+                return (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      saved
+                        ? removeFromWatchlist(String(id))
+                        : addToWatchlist({
+                            ...movie,
+                            category: category as "movie" | "tv",
+                          })
+                    }
+                    className={cn(
+                      "flex items-center gap-2 sm:py-2 py-[6px] sm:px-5 px-4 rounded-full text-sm font-medium transition-all duration-300 hover:-translate-y-[2px] active:translate-y-[1px]",
+                      saved
+                        ? "bg-[#ff0000] text-gray-50"
+                        : "border border-gray-400 dark:border-gray-500 text-gray-300 hover:border-[#ff0000] hover:text-[#ff0000]"
+                    )}
+                  >
+                    {saved ? (
+                      <BsHeartFill className="w-4 h-4" />
+                    ) : (
+                      <BsHeart className="w-4 h-4" />
+                    )}
+                    {saved ? "In Watchlist" : "Add to Watchlist"}
+                  </button>
+                );
+              })()}
+            </m.div>
 
             <m.p variants={fadeDown} className={`${paragraph} will-change-transform motion-reduce:transform-none`}>
               <span>
